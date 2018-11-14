@@ -4,9 +4,31 @@ import { connect } from 'react-redux'
 import { getList, showUpdate, showDelete } from './billingCycleActions'
 
 class BillingCycleList extends Component {
+    init_order = 'asc';
+    pagSkip = 0;
+    pagLimit = 5;
 
     componentWillMount() {
-        this.props.getList()
+        this.props.getList(`sort=year,month&sortOrder=desc,desc&skip=${this.pagSkip}&limit=${this.pagLimit}`)
+    }
+
+    orderBy(campo) {
+        let urlMount = `sort=${campo}&sortOrder=${this.init_order}`
+        if (this.pagSkip !== undefined && this.pagLimit !== undefined) {
+            urlMount = urlMount + `&skip=${this.pagSkip}&limit=${this.pagLimit}`
+        }
+        this.props.getList(urlMount)
+        this.init_order = this.init_order === 'asc' ? 'desc' : 'asc'
+    }
+
+    setLimit(event) {
+        this.pagLimit = event;
+        this.props.getList(`sort=year,month&sortOrder=desc,desc&skip=${this.pagSkip}&limit=${this.pagLimit}`)
+    }
+
+    setSkitp(value) {
+        this.pagSkip = this.pagSkip + value;
+        this.props.getList(`sort=year,month&sortOrder=desc,desc&skip=${this.pagSkip}&limit=${this.pagLimit}`)
     }
 
     renderRows() {
@@ -31,12 +53,12 @@ class BillingCycleList extends Component {
     render() {
         return (
             <div>
-                <table className='table'>
+                <table className='table table-striped table-hover'>
                     <thead>
                         <tr>
-                            <th>Nome</th>
-                            <th>Mês</th>
-                            <th>Ano</th>
+                            <th onClick={() => this.orderBy('name')}><span class="glyphicon glyphicon-sort" aria-hidden="true"></span>Nome</th>
+                            <th onClick={() => this.orderBy('month')}><span class="glyphicon glyphicon-sort" aria-hidden="true"></span>Mês</th>
+                            <th onClick={() => this.orderBy('year')}><span class="glyphicon glyphicon-sort" aria-hidden="true"></span>Ano</th>
                             <th className='table-actions'>Ações</th>
                         </tr>
                     </thead>
@@ -44,11 +66,34 @@ class BillingCycleList extends Component {
                         {this.renderRows()}
                     </tbody>
                 </table>
+
+                <nav aria-label="aaaa">
+                    <ul class="pager">
+                        <li><a href="javascript:;" onClick={() => this.setSkitp(this.pagLimit * (-1))}>Voltar</a></li>
+                        <li><a href="javascript:;" onClick={() => this.setSkitp(this.pagLimit)}>Proximo</a></li>
+                    </ul>
+                </nav>
+
+
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li><a href="javascript:;" onClick={() => this.setLimit(5)}>5</a></li>
+                        <li><a href="javascript:;" onClick={() => this.setLimit(10)}>10</a></li>
+                        <li><a href="javascript:;" onClick={() => this.setLimit(15)}>15</a></li>
+                        <li><a href="javascript:;" onClick={() => this.setLimit(20)}>20</a></li>
+                        <li><a href="javascript:;" onClick={() => this.setLimit(25)}>25</a></li>
+                    </ul>
+                </nav>
+
+
             </div>
+
+
+
         )
     }
 }
 
-const mapStateToProps = state => ({list: state.billingCycle.list})
-const mapDispatchToProps = dispatch => bindActionCreators({getList, showUpdate, showDelete}, dispatch)
+const mapStateToProps = state => ({ list: state.billingCycle.list })
+const mapDispatchToProps = dispatch => bindActionCreators({ getList, showUpdate, showDelete }, dispatch)
 export default connect(mapStateToProps, mapDispatchToProps)(BillingCycleList)

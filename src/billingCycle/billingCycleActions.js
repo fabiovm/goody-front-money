@@ -5,11 +5,17 @@ import { showTabs, selectTab } from '../common/tab/tabActions'
 import Consts from '../consts'
 
 const BASE_URL = Consts.API_URL
+const ORDER_BY_DEFAULT = '?sort=year,month&sortOrder=desc,desc'
 
 const INITIAL_VALUES = {credits: [{}], debts: [{}]}
 
-export function getList() {
-    const request = axios.get(`${BASE_URL}/billingCycles`)
+export function getList(orderby) {
+    let urlGet = `${BASE_URL}/billingCycles${ORDER_BY_DEFAULT}`
+    if (orderby !== undefined){
+        urlGet = `${BASE_URL}/billingCycles?${orderby}`
+    }
+
+    const request = axios.get(urlGet)
     return {
         type: 'BILLING_CYCLES_FETCHED',
         payload: request
